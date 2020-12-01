@@ -1,25 +1,64 @@
 import express, { Request, Response } from 'express';
-import { Routes } from './interfaces/routes.interface';
-import { ExampleRoute } from './routes/example.route';
+import Route from './interfaces/routes.interface';
+import errorMiddleware from './middlewares/error.middleware';
 
-const app = express();
-const routes: Routes[] = [];
+class App {
+  public app: express.Application;
+  public port: string | number;
+  public env: boolean;
 
-app.use(express.static('public'));
+  constructor(routes: Route[]) {
+    this.app = express();
+    this.port = process.env.PORT || 3000;
+    this.env = process.env.NODE_ENV === 'production' ? true : false;
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-routes.push(new ExampleRoute());
+    this.initializeMiddlewares();
+    this.initializeRoutes(routes);
+    this.initializeErrorHandling();
+  }
 
-routes.forEach(route => {
-  app.use("/", route.router);
-})
+  public listen() {
+    this.app.listen(this.port, () => {
+      console.log(`🚀 App listening on the port ${this.port}`);
+    });
+  }
 
+  public getServer() {
+    return this.app;
+  }
+  private initializeMiddlewares() {
+    if (this.env) {
+      //production
+      // this.app.use(cors());
+      // this.app.use(hpp());
+      // this.app.use(helmet());
+      // this.app.use(logger('combined'));
+      //this.app.use(cors({ origin: 'your.domain.com', credentials: true }));
+    } else {
+      //development
+      // this.app.use(logger('dev'));
+      // this.app.use(cors({
+      //   origin: true,
+      //   credentials: true
+      // }));
+    }
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({
+      extended: true
+    }));
+  }
 
+  private initializeRoutes(routes: Route[]) {
+    routes.forEach(route => {
+      this.app.use('/', route.router);
+    });
+  }
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello");
-});
+  private initializeErrorHandling() {
+    this.app.use(errorMiddleware);
+  }
+}
 
-app.listen(5000, () => {
-  console.log("Server running");
-});
+export default App;
 

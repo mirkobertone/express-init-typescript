@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { ExampleController } from "../controllers/example.controller";
-import { Routes } from "../interfaces/routes.interface";
+import Route from "../interfaces/routes.interface";
 
-export class ExampleRoute implements Routes {
+export class ExampleRoute implements Route {
     public path = '/example';
     public router = Router();
     public exampleController = new ExampleController();
