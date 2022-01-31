@@ -1,9 +1,9 @@
-import 'dotenv/config';
-import App from './app';
-import IndexRoute from './routes/index.route';
+import "dotenv/config";
+import App from "./app";
+import IndexRoute from "./routes/index.route";
 
 const app = new App([
-  new IndexRoute()
+	new IndexRoute()
 ]);
 
 app.listen();
